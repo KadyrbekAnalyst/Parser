@@ -63,24 +63,25 @@ def data_get_from_requsets(html):
     return [name[0].text,price[0].text]
 
     
+def get_sku(excel):
+    df = pd.read_excel(excel)
+    return df
     
-def get_all_info(product):
+def get_all_info(excel):
+    df = get_sku(excel)
     all_info = []
-    max_pages = 19
-    for page in range(18,max_pages+1):
-        url = f'https://www.mechta.kz/search/?q={product}&setcity=al&page={page}'
-        data_get_selenium(url)
-        if get_stop_flag(url):
-            break
+    for product in df['Model']:
+        url = f'https://www.mechta.kz/search/?q={product}&setcity=al'
+        data_for_uniq(url)
+        if get_stop_flag():
+            all_info.append({'SKU':f'{product}','links':0,'name':0,'price':0,'exist':'no'})
         else:
-            urls = read_local_html('mechta_selenium.html')
-            for links in urls:
-                data_for_uniq(links)
-                info = data_get_from_requsets('mechta_selenium_uniq.html')
-                all_info.append({'links':links,'name':info[0],'price':info[1]})
-                print(all_info)
- 
-get_all_info('iphone')
+            info = data_get_from_requsets('mechta_selenium_uniq.html')
+            all_info.append({'SKU':f'{product}','links':url,'name':info[0],'price':info[1],'exist':'yes'})
+            print(all_info)
+
+# get_sku('All SKU Monitors.xlsx')
+get_all_info('All SKU Monitors.xlsx')
 # a = get_stop_flag('https://www.mechta.kz/search/?q=iphone&setcity=al&page=19')
 # print(a)       
 # data_for_uniq('https://www.mechta.kz/product/televizor-samsung-led-ue55au7100uxce-uhd-smart/')
